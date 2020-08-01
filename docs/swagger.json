@@ -1,0 +1,458 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {},
+        "license": {}
+    },
+    "paths": {
+        "/v1/hotel": {
+            "get": {
+                "description": "Get all available hotel rooms",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Hotel"
+                ],
+                "summary": "Get available",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "\"2020-08-01T06:00:00.000+07:00\"",
+                        "description": "Check in date",
+                        "name": "checkin_date",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "\"2020-08-01T06:00:00.000+07:00\"",
+                        "description": "Check out date",
+                        "name": "checkout_date",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/responses.AvailableHotels"
+                        }
+                    },
+                    "400": {
+                        "description": "Status Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add new hotel registry",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Hotel"
+                ],
+                "summary": "Add hotel",
+                "parameters": [
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.AddHotelRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/models.Hotel"
+                        }
+                    },
+                    "400": {
+                        "description": "Status Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/reservation": {
+            "post": {
+                "description": "Create reservation to hotel room",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stay"
+                ],
+                "summary": "Add reservation",
+                "parameters": [
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.AddReservationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/models.Reservation"
+                        }
+                    },
+                    "400": {
+                        "description": "Status Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/stay/check_in": {
+            "post": {
+                "description": "Check-in using orderID after reservation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Stay"
+                ],
+                "summary": "Check-in",
+                "parameters": [
+                    {
+                        "description": "Request Body",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/requests.CheckinRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Ok",
+                        "schema": {
+                            "$ref": "#/definitions/models.Stay"
+                        }
+                    },
+                    "400": {
+                        "description": "Status Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.Hotel": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reservations": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.Reservations"
+                },
+                "rooms": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.Rooms"
+                }
+            }
+        },
+        "models.Reservation": {
+            "type": "object",
+            "properties": {
+                "checkin_date": {
+                    "type": "string"
+                },
+                "checkout_date": {
+                    "type": "string"
+                },
+                "customer_name": {
+                    "type": "string"
+                },
+                "hotel_id": {
+                    "type": "integer"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "room_id": {
+                    "type": "integer"
+                },
+                "stays": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.Stays"
+                }
+            }
+        },
+        "models.Reservations": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/models.Reservation"
+            }
+        },
+        "models.Room": {
+            "type": "object",
+            "properties": {
+                "hotel_id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "reservations": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.Reservations"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "stay_rooms": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.StayRooms"
+                },
+                "stays": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.Stays"
+                }
+            }
+        },
+        "models.Rooms": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/models.Room"
+            }
+        },
+        "models.Stay": {
+            "type": "object",
+            "properties": {
+                "guest_name": {
+                    "type": "string"
+                },
+                "reservation_id": {
+                    "type": "integer"
+                },
+                "room_id": {
+                    "type": "integer"
+                },
+                "stay_room": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.StayRoom"
+                }
+            }
+        },
+        "models.StayRoom": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "string"
+                },
+                "room_id": {
+                    "type": "integer"
+                },
+                "stay_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.StayRooms": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/models.StayRoom"
+            }
+        },
+        "models.Stays": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/models.Stay"
+            }
+        },
+        "requests.AddHotelRequest": {
+            "type": "object",
+            "required": [
+                "address",
+                "name"
+            ],
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "example": "Jl. Bandung"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Hotel A"
+                },
+                "rooms": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.Rooms"
+                }
+            }
+        },
+        "requests.AddReservationRequest": {
+            "type": "object",
+            "required": [
+                "customer_name"
+            ],
+            "properties": {
+                "checkin_date": {
+                    "description": "nolint:lll",
+                    "type": "string",
+                    "example": "2020-08-01T05:49:49.053+07:00"
+                },
+                "checkout_date": {
+                    "description": "nolint:lll",
+                    "type": "string",
+                    "example": "2020-08-02T05:49:49.053+07:00"
+                },
+                "customer_name": {
+                    "type": "string",
+                    "example": "Customer A"
+                },
+                "hotel_id": {
+                    "type": "integer",
+                    "example": 2
+                }
+            }
+        },
+        "requests.CheckinRequest": {
+            "type": "object",
+            "required": [
+                "guest_name",
+                "order_id"
+            ],
+            "properties": {
+                "guest_name": {
+                    "type": "string",
+                    "example": "Guest A"
+                },
+                "order_id": {
+                    "type": "string",
+                    "example": "1234ABCD"
+                }
+            }
+        },
+        "responses.AvailableHotels": {
+            "type": "object",
+            "properties": {
+                "hotels": {
+                    "type": "object",
+                    "$ref": "#/definitions/responses.Hotels"
+                },
+                "total_hotels": {
+                    "type": "integer"
+                }
+            }
+        },
+        "responses.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "responses.Hotel": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reservations": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.Reservations"
+                },
+                "rooms": {
+                    "type": "object",
+                    "$ref": "#/definitions/models.Rooms"
+                },
+                "total_rooms": {
+                    "type": "integer"
+                }
+            }
+        },
+        "responses.Hotels": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/responses.Hotel"
+            }
+        }
+    }
+}

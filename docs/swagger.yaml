@@ -1,0 +1,307 @@
+definitions:
+  models.Hotel:
+    properties:
+      address:
+        type: string
+      name:
+        type: string
+      reservations:
+        $ref: '#/definitions/models.Reservations'
+        type: object
+      rooms:
+        $ref: '#/definitions/models.Rooms'
+        type: object
+    type: object
+  models.Reservation:
+    properties:
+      checkin_date:
+        type: string
+      checkout_date:
+        type: string
+      customer_name:
+        type: string
+      hotel_id:
+        type: integer
+      order_id:
+        type: string
+      room_id:
+        type: integer
+      stays:
+        $ref: '#/definitions/models.Stays'
+        type: object
+    type: object
+  models.Reservations:
+    items:
+      $ref: '#/definitions/models.Reservation'
+    type: array
+  models.Room:
+    properties:
+      hotel_id:
+        type: integer
+      number:
+        type: integer
+      reservations:
+        $ref: '#/definitions/models.Reservations'
+        type: object
+      status:
+        type: string
+      stay_rooms:
+        $ref: '#/definitions/models.StayRooms'
+        type: object
+      stays:
+        $ref: '#/definitions/models.Stays'
+        type: object
+    type: object
+  models.Rooms:
+    items:
+      $ref: '#/definitions/models.Room'
+    type: array
+  models.Stay:
+    properties:
+      guest_name:
+        type: string
+      reservation_id:
+        type: integer
+      room_id:
+        type: integer
+      stay_room:
+        $ref: '#/definitions/models.StayRoom'
+        type: object
+    type: object
+  models.StayRoom:
+    properties:
+      date:
+        type: string
+      room_id:
+        type: integer
+      stay_id:
+        type: integer
+    type: object
+  models.StayRooms:
+    items:
+      $ref: '#/definitions/models.StayRoom'
+    type: array
+  models.Stays:
+    items:
+      $ref: '#/definitions/models.Stay'
+    type: array
+  requests.AddHotelRequest:
+    properties:
+      address:
+        example: Jl. Bandung
+        type: string
+      name:
+        example: Hotel A
+        type: string
+      rooms:
+        $ref: '#/definitions/models.Rooms'
+        type: object
+    required:
+    - address
+    - name
+    type: object
+  requests.AddReservationRequest:
+    properties:
+      checkin_date:
+        description: nolint:lll
+        example: "2020-08-01T05:49:49.053+07:00"
+        type: string
+      checkout_date:
+        description: nolint:lll
+        example: "2020-08-02T05:49:49.053+07:00"
+        type: string
+      customer_name:
+        example: Customer A
+        type: string
+      hotel_id:
+        example: 2
+        type: integer
+    required:
+    - customer_name
+    type: object
+  requests.CheckinRequest:
+    properties:
+      guest_name:
+        example: Guest A
+        type: string
+      order_id:
+        example: 1234ABCD
+        type: string
+    required:
+    - guest_name
+    - order_id
+    type: object
+  responses.AvailableHotels:
+    properties:
+      hotels:
+        $ref: '#/definitions/responses.Hotels'
+        type: object
+      total_hotels:
+        type: integer
+    type: object
+  responses.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  responses.Hotel:
+    properties:
+      address:
+        type: string
+      name:
+        type: string
+      reservations:
+        $ref: '#/definitions/models.Reservations'
+        type: object
+      rooms:
+        $ref: '#/definitions/models.Rooms'
+        type: object
+      total_rooms:
+        type: integer
+    type: object
+  responses.Hotels:
+    items:
+      $ref: '#/definitions/responses.Hotel'
+    type: array
+info:
+  contact: {}
+  license: {}
+paths:
+  /v1/hotel:
+    get:
+      consumes:
+      - application/json
+      description: Get all available hotel rooms
+      parameters:
+      - default: '"2020-08-01T06:00:00.000+07:00"'
+        description: Check in date
+        in: query
+        name: checkin_date
+        required: true
+        type: string
+      - default: '"2020-08-01T06:00:00.000+07:00"'
+        description: Check out date
+        in: query
+        name: checkout_date
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Ok
+          schema:
+            $ref: '#/definitions/responses.AvailableHotels'
+        "400":
+          description: Status Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Get available
+      tags:
+      - Hotel
+    post:
+      consumes:
+      - application/json
+      description: Add new hotel registry
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.AddHotelRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Ok
+          schema:
+            $ref: '#/definitions/models.Hotel'
+        "400":
+          description: Status Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Add hotel
+      tags:
+      - Hotel
+  /v1/reservation:
+    post:
+      consumes:
+      - application/json
+      description: Create reservation to hotel room
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.AddReservationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Ok
+          schema:
+            $ref: '#/definitions/models.Reservation'
+        "400":
+          description: Status Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Add reservation
+      tags:
+      - Stay
+  /v1/stay/check_in:
+    post:
+      consumes:
+      - application/json
+      description: Check-in using orderID after reservation
+      parameters:
+      - description: Request Body
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CheckinRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Ok
+          schema:
+            $ref: '#/definitions/models.Stay'
+        "400":
+          description: Status Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      summary: Check-in
+      tags:
+      - Stay
+swagger: "2.0"
