@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/go-playground/validator/v10"
@@ -44,21 +43,22 @@ func NewHotelController(
 // @Accept json
 // @Produce json
 // @Param checkin_date query string true "Check in date" default("2020-08-01T06:00:00.000+07:00")
-// @Param checkout_date query string true "Check out date" default("2020-08-01T06:00:00.000+07:00")
+// @Param checkout_date query string true "Check out date" default("2020-08-02T06:00:00.000+07:00")
 // @Success 200 {object} responses.AvailableHotels "Ok"
 // @Failure 400 {object} responses.ErrorResponse "Status Bad Request"
 // @Failure 500 {object} responses.ErrorResponse "Internal Server Error"
 // @Router /v1/hotel [get]
 func (ctrl *HotelController) GetAvailable(c echo.Context) error {
-	checkin := c.QueryParam("checkin_date")
-	checkout := c.QueryParam("checkout_date")
-	if checkin == "" || checkout == "" {
-		return c.JSON(http.StatusBadRequest, responses.NewErrorResponse(
-			errors.New("missing check-in or check-out parameter")))
+	request := requests.AvailableHotelRequest{
+		CheckinDate:  c.QueryParam("checkin_date"),
+		CheckoutDate: c.QueryParam("checkout_date"),
+	}
+	if err := ctrl.validate.Struct(request); err != nil {
+		return c.JSON(http.StatusBadRequest, responses.NewErrorResponse(err))
 	}
 
 	ctx := c.Request().Context()
-	response, err := ctrl.hotelManagementUC.GetAvailableHotel(ctx, checkin, checkout)
+	response, err := ctrl.hotelManagementUC.GetAvailableHotel(ctx, request)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responses.NewErrorResponse(err))
 	}

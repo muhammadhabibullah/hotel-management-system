@@ -15,7 +15,7 @@ import (
 
 type HotelManagementUseCase interface {
 	AddHotel(c context.Context, request requests.AddHotelRequest) (models.Hotel, error)
-	GetAvailableHotel(c context.Context, checkin, checkout string) (responses.AvailableHotels, error)
+	GetAvailableHotel(c context.Context, request requests.AvailableHotelRequest) (responses.AvailableHotels, error)
 }
 
 type hotelManagementUseCase struct {
@@ -62,14 +62,14 @@ func (uc *hotelManagementUseCase) AddHotel(c context.Context, request requests.A
 	return
 }
 
-func (uc *hotelManagementUseCase) GetAvailableHotel(c context.Context, checkin, checkout string) (
+func (uc *hotelManagementUseCase) GetAvailableHotel(c context.Context, request requests.AvailableHotelRequest) (
 	response responses.AvailableHotels, err error) {
 
 	ctx, cancel := context.WithTimeout(c, time.Duration(5)*time.Second)
 	defer cancel()
 
-	checkinDate, _ := parseDate(checkin)
-	checkoutDate, _ := parseDate(checkout)
+	checkinDate, _ := parseDate(request.CheckinDate)
+	checkoutDate, _ := parseDate(request.CheckoutDate)
 
 	var allHotels models.Hotels
 	allHotels, err = uc.hotelRepo.Get(ctx)
